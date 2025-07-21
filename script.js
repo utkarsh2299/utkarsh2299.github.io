@@ -1,40 +1,23 @@
-// Particle background (simple floating dots)
-const canvas = document.getElementById("particles");
-const ctx = canvas.getContext("2d");
-let particles = [];
+// Tab navigation
+const links = document.querySelectorAll('.sidebar nav a');
+const sections = document.querySelectorAll('.section');
 
-function resizeCanvas() {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-}
-window.addEventListener("resize", resizeCanvas);
-resizeCanvas();
+links.forEach(link => {
+  link.addEventListener('click', e => {
+    e.preventDefault();
+    const targetId = link.getAttribute('data-section');
 
-// Create particles
-for (let i = 0; i < 50; i++) {
-  particles.push({
-    x: Math.random() * canvas.width,
-    y: Math.random() * canvas.height,
-    radius: Math.random() * 3,
-    dx: (Math.random() - 0.5) * 0.5,
-    dy: (Math.random() - 0.5) * 0.5
+    // Set active class
+    links.forEach(l => l.classList.remove('active'));
+    link.classList.add('active');
+
+    // Show the selected section
+    sections.forEach(section => {
+      if (section.id === targetId) {
+        section.classList.add('visible');
+      } else {
+        section.classList.remove('visible');
+      }
+    });
   });
-}
-
-function animate() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  particles.forEach(p => {
-    p.x += p.dx;
-    p.y += p.dy;
-
-    if (p.x < 0 || p.x > canvas.width) p.dx *= -1;
-    if (p.y < 0 || p.y > canvas.height) p.dy *= -1;
-
-    ctx.beginPath();
-    ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-    ctx.fillStyle = "rgba(255,255,255,0.5)";
-    ctx.fill();
-  });
-  requestAnimationFrame(animate);
-}
-animate();
+});
