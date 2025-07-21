@@ -135,3 +135,65 @@ main {
 .btn:hover {
   background: #38a7db;
 }
+
+/* Existing desktop styles remain — additions below */
+
+@media (max-width: 768px) {
+  /* Navbar */
+  .navbar {
+    padding: 10px 20px;
+  }
+
+  .nav-links {
+    position: absolute;
+    top: 60px;
+    right: 0;
+    background: rgba(15, 18, 23, 0.95);
+    flex-direction: column;
+    width: 180px;
+    padding: 10px;
+    border-radius: 8px;
+    display: none;
+  }
+
+  .nav-links.show {
+    display: flex;
+  }
+
+  .nav-links li {
+    margin: 10px 0;
+    text-align: right;
+  }
+
+  /* Add hamburger icon */
+  .hamburger {
+    display: block;
+    cursor: pointer;
+    width: 25px;
+    height: 20px;
+    position: relative;
+  }
+
+  .hamburger span {
+    background: #fff;
+    display: block;
+    height: 3px;
+    margin: 4px 0;
+    border-radius: 2px;
+    transition: all 0.3s ease;
+  }
+
+  /* Resize hero and fonts */
+  .centered h1 {
+    font-size: 2rem;
+  }
+  .centered p {
+    font-size: 1rem;
+  }
+
+  /* Glass containers */
+  .glass-container {
+    width: 90%;
+    padding: 20px;
+  }
+}
