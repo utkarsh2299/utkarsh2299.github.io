@@ -1,22 +1,40 @@
-// Typewriter effect
-const text = "Utkarsh Pathak";
-let i = 0;
+// Particle background (simple floating dots)
+const canvas = document.getElementById("particles");
+const ctx = canvas.getContext("2d");
+let particles = [];
 
-function type() {
-  if (i < text.length) {
-    document.querySelector(".typing").textContent += text.charAt(i);
-    i++;
-    setTimeout(type, 100);
-  }
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
 }
-window.onload = type;
+window.addEventListener("resize", resizeCanvas);
+resizeCanvas();
 
-// Smooth scrolling
-document.querySelectorAll('a[href^="#"]').forEach(link => {
-  link.addEventListener("click", e => {
-    e.preventDefault();
-    document.querySelector(link.getAttribute("href")).scrollIntoView({
-      behavior: "smooth"
-    });
+// Create particles
+for (let i = 0; i < 50; i++) {
+  particles.push({
+    x: Math.random() * canvas.width,
+    y: Math.random() * canvas.height,
+    radius: Math.random() * 3,
+    dx: (Math.random() - 0.5) * 0.5,
+    dy: (Math.random() - 0.5) * 0.5
   });
-});
+}
+
+function animate() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  particles.forEach(p => {
+    p.x += p.dx;
+    p.y += p.dy;
+
+    if (p.x < 0 || p.x > canvas.width) p.dx *= -1;
+    if (p.y < 0 || p.y > canvas.height) p.dy *= -1;
+
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+    ctx.fillStyle = "rgba(255,255,255,0.5)";
+    ctx.fill();
+  });
+  requestAnimationFrame(animate);
+}
+animate();
