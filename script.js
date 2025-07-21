@@ -1,22 +1,21 @@
-// Typewriter effect for name
+// Typewriter effect
 const text = "Utkarsh Pathak";
-let index = 0;
+let i = 0;
 
-function typeWriter() {
-  if (index < text.length) {
-    document.querySelector(".typing").textContent += text.charAt(index);
-    index++;
-    setTimeout(typeWriter, 100);
+function type() {
+  if (i < text.length) {
+    document.querySelector(".typing").textContent += text.charAt(i);
+    i++;
+    setTimeout(type, 100);
   }
 }
+window.onload = type;
 
-window.onload = typeWriter;
-
-// Smooth scroll
-document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-  anchor.addEventListener("click", function (e) {
+// Smooth scrolling
+document.querySelectorAll('a[href^="#"]').forEach(link => {
+  link.addEventListener("click", e => {
     e.preventDefault();
-    document.querySelector(this.getAttribute("href")).scrollIntoView({
+    document.querySelector(link.getAttribute("href")).scrollIntoView({
       behavior: "smooth"
     });
   });
