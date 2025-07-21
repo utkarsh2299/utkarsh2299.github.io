@@ -3,66 +3,82 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Utkarsh Pathak | Portfolio</title>
+  <title>Utkarsh Pathak | Creative Portfolio</title>
   <link rel="stylesheet" href="style.css">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
-  <!-- Sidebar -->
-  <aside class="sidebar">
-    <div class="profile">
-      <h1>Utkarsh Pathak</h1>
-      <p>ML & Speech AI Engineer</p>
-    </div>
-    <nav>
-      <ul>
-        <li><a href="#" data-section="home" class="active">Home</a></li>
-        <li><a href="#" data-section="experience">Experience</a></li>
-        <li><a href="#" data-section="publications">Publications</a></li>
-        <li><a href="#" data-section="resume">Resume</a></li>
-        <li><a href="#" data-section="contact">Contact</a></li>
-      </ul>
-    </nav>
-  </aside>
+  <!-- Custom Cursor -->
+  <div class="cursor"></div>
 
-  <!-- Main Content -->
-  <main class="content">
-    <!-- Sections -->
-    <section id="home" class="section visible">
-      <div class="glass-card">
-        <h2>Welcome</h2>
-        <p>Hi, I’m Utkarsh — I work on speech and AI systems to make voice tech smarter and multilingual.</p>
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="logo">Utkarsh</div>
+    <ul class="nav-links">
+      <li><a href="#" data-section="home" class="active">Home</a></li>
+      <li><a href="#" data-section="experience">Experience</a></li>
+      <li><a href="#" data-section="publications">Publications</a></li>
+      <li><a href="#" data-section="resume">Resume</a></li>
+      <li><a href="#" data-section="contact">Contact</a></li>
+    </ul>
+  </nav>
+
+  <!-- Sections -->
+  <main>
+    <!-- Hero -->
+    <section id="home" class="section visible hero">
+      <div class="hero-bg"></div>
+      <div class="hero-content">
+        <h1 class="hero-title">Utkarsh Pathak</h1>
+        <p class="hero-tagline">Building <span>Speech & AI</span> systems that talk the world’s languages.</p>
       </div>
     </section>
 
+    <!-- Experience -->
     <section id="experience" class="section">
-      <div class="glass-card">
+      <div class="glass-container">
         <h2>Experience</h2>
-        <ul>
-          <li><strong>Research Assistant</strong>, Speech AI Lab (2023–Present) — Multilingual TTS/ASR systems.</li>
-          <li><strong>Graduate Intern</strong>, NLP Systems (2022–2023) — Optimized deep learning for healthcare ASR.</li>
-        </ul>
+        <div class="card-grid">
+          <div class="card">
+            <h3>Research Assistant</h3>
+            <p><strong>Speech AI Lab</strong> (2023–Present)</p>
+            <p>Working on multilingual TTS & ASR for low-resource languages.</p>
+          </div>
+          <div class="card">
+            <h3>Graduate Intern</h3>
+            <p><strong>NLP Systems</strong> (2022–2023)</p>
+            <p>Optimized deep learning pipelines for healthcare ASR.</p>
+          </div>
+        </div>
       </div>
     </section>
 
+    <!-- Publications -->
     <section id="publications" class="section">
-      <div class="glass-card">
+      <div class="glass-container">
         <h2>Publications</h2>
-        <p>• <strong>Zero-shot Multilingual TTS</strong> – Interspeech 2025</p>
-        <p>• <strong>Code-switching Speech Synthesis</strong> – Under Review</p>
+        <div class="card-grid">
+          <div class="card">
+            <p><strong>Zero-shot Multilingual TTS</strong><br>Interspeech 2025</p>
+          </div>
+          <div class="card">
+            <p><strong>Code-switching Speech Synthesis</strong><br>Under Review</p>
+          </div>
+        </div>
       </div>
     </section>
 
+    <!-- Resume -->
     <section id="resume" class="section">
-      <div class="glass-card">
+      <div class="glass-container center">
         <h2>Resume</h2>
-        <p>Download my full CV:</p>
         <a href="resume.pdf" target="_blank" class="btn">Download</a>
       </div>
     </section>
 
+    <!-- Contact -->
     <section id="contact" class="section">
-      <div class="glass-card">
+      <div class="glass-container center">
         <h2>Contact</h2>
         <p>Email: <a href="mailto:utkarsh@example.com">utkarsh@example.com</a></p>
         <p>GitHub: <a href="https://github.com/yourusername" target="_blank">github.com/yourusername</a></p>
