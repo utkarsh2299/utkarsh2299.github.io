@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 256 256">
+  <!-- Circle background -->
+  <circle cx="128" cy="128" r="120" fill="none" stroke="white" stroke-width="16"></circle>
+
+  <!-- "i" bar -->
+  <rect x="85" y="80" width="18" height="100" fill="white"></rect>
+
+  <!-- "D" shape -->
+  <path d="M120 80h36c25 0 44 19 44 48s-19 48-44 48h-36V80z
+           M138 160h16c15 0 26-10 26-32s-11-32-26-32h-16v64z" fill="white"></path>
+</svg>
