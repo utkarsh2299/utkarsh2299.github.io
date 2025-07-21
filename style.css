@@ -197,3 +197,78 @@ main {
     padding: 20px;
   }
 }
+/* Home Page Styling */
+.home-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  height: calc(100vh - 70px);
+  gap: 20px;
+  padding: 20px;
+}
+
+.profile-pic {
+  width: 160px;
+  height: 160px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 3px solid #4fbfff;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+}
+
+.home-container h1 {
+  font-size: 2.5rem;
+  color: #4fbfff;
+  margin: 10px 0;
+}
+
+.bio {
+  max-width: 600px;
+  font-size: 1.1rem;
+  color: #ccc;
+  margin-bottom: 15px;
+}
+
+.education p {
+  color: #aaa;
+  font-size: 1rem;
+  margin: 5px 0;
+}
+
+/* Social Links */
+.social-links {
+  display: flex;
+  gap: 18px;
+  margin-top: 15px;
+}
+
+.social-links a img {
+  width: 30px;
+  height: 30px;
+  filter: brightness(0) invert(1);
+  transition: transform 0.3s, filter 0.3s;
+}
+
+.social-links a:hover img {
+  transform: scale(1.2);
+  filter: brightness(0) invert(1) drop-shadow(0 0 6px #4fbfff);
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+  .profile-pic {
+    width: 120px;
+    height: 120px;
+  }
+
+  .home-container h1 {
+    font-size: 2rem;
+  }
+
+  .bio {
+    font-size: 1rem;
+    max-width: 90%;
+  }
+}
