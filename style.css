@@ -12,7 +12,7 @@ body {
   overflow-x: hidden;
 }
 
-/* Navigation */
+/* Navbar */
 .navbar {
   position: fixed;
   top: 0; left: 0;
@@ -61,10 +61,24 @@ body {
   background: #4fbfff;
 }
 
-/* Sections */
-main {
-  padding-top: 70px; /* Space for navbar */
+/* Mobile Menu */
+.hamburger {
+  display: none;
+  flex-direction: column;
+  cursor: pointer;
 }
+
+.hamburger span {
+  background: #fff;
+  height: 3px;
+  margin: 4px 0;
+  width: 25px;
+  border-radius: 2px;
+  transition: all 0.3s;
+}
+
+/* Sections */
+main { padding-top: 70px; }
 
 .section {
   display: none;
@@ -81,123 +95,11 @@ main {
   transform: translateY(0);
 }
 
-/* Home */
-.centered {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  height: calc(100vh - 70px);
-  text-align: center;
+/* Home Section */
+.home-bg {
+  background: radial-gradient(circle at center, rgba(79,191,255,0.15) 0%, rgba(15,18,23,1) 80%);
 }
 
-.centered h1 {
-  font-size: 3rem;
-  color: #4fbfff;
-  margin-bottom: 10px;
-}
-
-.centered p {
-  font-size: 1.2rem;
-  color: #ddd;
-}
-
-/* Glass Container */
-.glass-container {
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 12px;
-  max-width: 700px;
-  margin: auto;
-  padding: 40px;
-  text-align: center;
-  backdrop-filter: blur(12px);
-  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
-}
-
-.glass-container h2 {
-  color: #4fbfff;
-  margin-bottom: 20px;
-}
-
-/* Buttons */
-.btn {
-  display: inline-block;
-  padding: 10px 25px;
-  margin-top: 20px;
-  background: #4fbfff;
-  color: #fff;
-  border-radius: 25px;
-  text-decoration: none;
-  font-weight: 600;
-  transition: background 0.3s;
-}
-
-.btn:hover {
-  background: #38a7db;
-}
-
-/* Existing desktop styles remain — additions below */
-
-@media (max-width: 768px) {
-  /* Navbar */
-  .navbar {
-    padding: 10px 20px;
-  }
-
-  .nav-links {
-    position: absolute;
-    top: 60px;
-    right: 0;
-    background: rgba(15, 18, 23, 0.95);
-    flex-direction: column;
-    width: 180px;
-    padding: 10px;
-    border-radius: 8px;
-    display: none;
-  }
-
-  .nav-links.show {
-    display: flex;
-  }
-
-  .nav-links li {
-    margin: 10px 0;
-    text-align: right;
-  }
-
-  /* Add hamburger icon */
-  .hamburger {
-    display: block;
-    cursor: pointer;
-    width: 25px;
-    height: 20px;
-    position: relative;
-  }
-
-  .hamburger span {
-    background: #fff;
-    display: block;
-    height: 3px;
-    margin: 4px 0;
-    border-radius: 2px;
-    transition: all 0.3s ease;
-  }
-
-  /* Resize hero and fonts */
-  .centered h1 {
-    font-size: 2rem;
-  }
-  .centered p {
-    font-size: 1rem;
-  }
-
-  /* Glass containers */
-  .glass-container {
-    width: 90%;
-    padding: 20px;
-  }
-}
-/* Home Page Styling */
 .home-container {
   display: flex;
   flex-direction: column;
@@ -212,39 +114,32 @@ main {
 .profile-pic {
   width: 160px;
   height: 160px;
-  object-fit: cover;
   border-radius: 50%;
   border: 3px solid #4fbfff;
+  object-fit: cover;
   box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-}
-
-.home-container h1 {
-  font-size: 2.5rem;
-  color: #4fbfff;
-  margin: 10px 0;
 }
 
 .bio {
   max-width: 600px;
   font-size: 1.1rem;
   color: #ccc;
-  margin-bottom: 15px;
+  margin: 10px 0;
 }
 
 .education p {
-  color: #aaa;
   font-size: 1rem;
+  color: #aaa;
   margin: 5px 0;
 }
 
-/* Social Links */
 .social-links {
   display: flex;
   gap: 18px;
-  margin-top: 15px;
+  margin-top: 10px;
 }
 
-.social-links a img {
+.social-links img {
   width: 30px;
   height: 30px;
   filter: brightness(0) invert(1);
@@ -256,19 +151,53 @@ main {
   filter: brightness(0) invert(1) drop-shadow(0 0 6px #4fbfff);
 }
 
-/* Mobile adjustments */
+/* Glass Container Sections */
+.glass-container {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  max-width: 700px;
+  margin: auto;
+  padding: 40px;
+  text-align: center;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+}
+
+.glass-container h2 { color: #4fbfff; margin-bottom: 20px; }
+
+/* Buttons */
+.btn {
+  display: inline-block;
+  padding: 10px 25px;
+  margin-top: 20px;
+  background: #4fbfff;
+  color: #fff;
+  border-radius: 25px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: background 0.3s;
+}
+
+.btn:hover { background: #38a7db; }
+
+/* Mobile */
 @media (max-width: 768px) {
-  .profile-pic {
-    width: 120px;
-    height: 120px;
+  .nav-links {
+    position: absolute;
+    top: 60px;
+    right: 0;
+    background: rgba(15,18,23,0.95);
+    flex-direction: column;
+    width: 180px;
+    padding: 10px;
+    border-radius: 8px;
+    display: none;
   }
 
-  .home-container h1 {
-    font-size: 2rem;
-  }
+  .nav-links.show { display: flex; }
+  .hamburger { display: flex; }
 
-  .bio {
-    font-size: 1rem;
-    max-width: 90%;
-  }
+  .profile-pic { width: 120px; height: 120px; }
+  .bio { font-size: 1rem; max-width: 90%; }
+  .home-container h1 { font-size: 2rem; }
 }
