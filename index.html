@@ -5,65 +5,74 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Utkarsh Pathak | Portfolio</title>
   <link rel="stylesheet" href="style.css">
-  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
-  <!-- Navbar -->
+  <!-- Navigation -->
   <nav class="navbar">
-    <div class="logo">~/utkarsh</div>
+    <div class="logo">Utkarsh Pathak</div>
     <ul class="nav-links">
-      <li><a href="#home">$ home</a></li>
-      <li><a href="#experience">$ experience</a></li>
-      <li><a href="#publications">$ publications</a></li>
-      <li><a href="#resume">$ resume</a></li>
-      <li><a href="#contact">$ contact</a></li>
+      <li><a href="#home">Home</a></li>
+      <li><a href="#experience">Experience</a></li>
+      <li><a href="#publications">Publications</a></li>
+      <li><a href="#resume">Resume</a></li>
+      <li><a href="#contact">Contact</a></li>
     </ul>
   </nav>
 
-  <!-- Home -->
-  <section id="home" class="section home">
-    <div class="intro">
-      <h1><span class="typing"></span><span class="cursor">|</span></h1>
-      <p>Machine Learning · Speech AI · Multilingual TTS & ASR</p>
-      <a href="#contact" class="btn">> contact_me</a>
+  <!-- Hero Section -->
+  <section id="home" class="section hero">
+    <div class="overlay"></div>
+    <div class="content">
+      <h1 class="fade-in">Hi, I'm Utkarsh</h1>
+      <p class="fade-in delay">I build intelligent speech & AI systems for the future.</p>
+      <a href="#experience" class="btn fade-in delay2">Explore</a>
     </div>
+    <canvas id="particles"></canvas>
   </section>
 
   <!-- Experience -->
-  <section id="experience" class="section">
-    <h2>$ cat experience.log</h2>
-    <div class="terminal-block">
-      <p><span class="prompt">utkarsh@portfolio:</span> Research Assistant – Speech AI Lab (2023–Present)</p>
-      <p><span class="prompt">utkarsh@portfolio:</span> Graduate Intern – NLP Systems (2022–2023)</p>
+  <section id="experience" class="section card-section">
+    <h2 class="section-title">Experience</h2>
+    <div class="card">
+      <h3>Research Assistant</h3>
+      <p><strong>Speech AI Lab</strong> (2023–Present)</p>
+      <p>Working on multilingual TTS and ASR for Indian languages.</p>
+    </div>
+    <div class="card">
+      <h3>Graduate Intern</h3>
+      <p><strong>NLP Systems</strong> (2022–2023)</p>
+      <p>Optimized deep learning models for healthcare ASR.</p>
     </div>
   </section>
 
   <!-- Publications -->
-  <section id="publications" class="section">
-    <h2>$ ls publications/</h2>
-    <div class="terminal-block">
-      <p>[2025] Zero-shot Multilingual TTS — *Interspeech*</p>
-      <p>[2025] Code-switching Speech Synthesis — *Under Review*</p>
+  <section id="publications" class="section card-section">
+    <h2 class="section-title">Publications</h2>
+    <div class="card">
+      <p><strong>Zero-shot Multilingual TTS</strong><br>Interspeech 2025</p>
+    </div>
+    <div class="card">
+      <p><strong>Code-switching Speech Synthesis</strong><br>Under Review</p>
     </div>
   </section>
 
   <!-- Resume -->
-  <section id="resume" class="section">
-    <h2>$ cat resume.pdf</h2>
+  <section id="resume" class="section resume-section">
+    <h2 class="section-title">Resume</h2>
+    <p class="resume-text">Download my detailed CV:</p>
     <a href="resume.pdf" target="_blank" class="btn">Download</a>
   </section>
 
   <!-- Contact -->
-  <section id="contact" class="section">
-    <h2>$ whoami</h2>
-    <div class="terminal-block">
-      <p>Email: <a href="mailto:utkarsh@example.com">utkarsh@example.com</a></p>
-      <p>GitHub: <a href="https://github.com/yourusername" target="_blank">github.com/yourusername</a></p>
-    </div>
+  <section id="contact" class="section contact-section">
+    <h2 class="section-title">Get in Touch</h2>
+    <p>Email: <a href="mailto:utkarsh@example.com">utkarsh@example.com</a></p>
+    <p>GitHub: <a href="https://github.com/yourusername" target="_blank">github.com/yourusername</a></p>
   </section>
 
   <footer>
-    <p>&copy; 2025 Utkarsh Pathak · crafted in <span class="green">HTML/CSS/JS</span></p>
+    <p>&copy; 2025 Utkarsh Pathak</p>
   </footer>
 
   <script src="script.js"></script>
