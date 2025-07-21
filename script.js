@@ -1,4 +1,4 @@
-// Navigation switching
+// Navigation tab switching
 const links = document.querySelectorAll('.nav-links a');
 const sections = document.querySelectorAll('.section');
 const hamburger = document.getElementById('hamburger');
@@ -17,12 +17,10 @@ links.forEach(link => {
       if (section.id === target) section.classList.add('visible');
     });
 
-    // Close menu after click (on mobile)
-    navLinks.classList.remove('show');
+    navLinks.classList.remove('show'); // Close on mobile
   });
 });
 
-// Toggle mobile menu
 hamburger.addEventListener('click', () => {
   navLinks.classList.toggle('show');
 });
