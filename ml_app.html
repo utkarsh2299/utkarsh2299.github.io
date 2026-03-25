@@ -1,0 +1,1077 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ML Study — Deep Dive</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0a0f;
+  --bg2: #111118;
+  --bg3: #18181f;
+  --bg4: #1e1e28;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.13);
+  --text: #e8e8f0;
+  --muted: #7a7a95;
+  --faint: #3a3a50;
+  --accent: #7c6aff;
+  --accent2: #a78bfa;
+  --accent-bg: rgba(124,106,255,0.1);
+  --accent-border: rgba(124,106,255,0.3);
+  --green: #34d399;
+  --green-bg: rgba(52,211,153,0.1);
+  --amber: #fbbf24;
+  --amber-bg: rgba(251,191,36,0.1);
+  --red: #f87171;
+  --red-bg: rgba(248,113,113,0.1);
+  --mono: 'DM Mono', monospace;
+  --sans: 'DM Sans', sans-serif;
+  --display: 'Syne', sans-serif;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.6;
+  min-height: 100vh;
+}
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg2); }
+::-webkit-scrollbar-thumb { background: var(--faint); border-radius: 3px; }
+
+/* LAYOUT */
+.shell { display: flex; min-height: 100vh; }
+.sidebar {
+  width: 240px;
+  min-width: 240px;
+  background: var(--bg2);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+}
+.main { flex: 1; min-width: 0; padding: 40px 48px; max-width: 900px; }
+
+/* SIDEBAR */
+.sidebar-logo {
+  padding: 28px 20px 20px;
+  border-bottom: 1px solid var(--border);
+}
+.sidebar-logo .wordmark {
+  font-family: var(--display);
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.02em;
+}
+.sidebar-logo .sub {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 2px;
+  font-family: var(--mono);
+}
+.sidebar-nav { padding: 14px 10px; flex: 1; }
+.nav-section-label {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--faint);
+  padding: 8px 10px 4px;
+  font-family: var(--mono);
+}
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all .15s;
+  font-size: 13px;
+  color: var(--muted);
+  user-select: none;
+  border: 1px solid transparent;
+}
+.nav-item:hover { background: var(--bg3); color: var(--text); }
+.nav-item.active {
+  background: var(--accent-bg);
+  color: var(--accent2);
+  border-color: var(--accent-border);
+}
+.nav-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--faint);
+  flex-shrink: 0;
+  transition: background .15s;
+}
+.nav-item.active .nav-dot { background: var(--accent); }
+.sidebar-footer {
+  padding: 16px 20px;
+  border-top: 1px solid var(--border);
+  font-size: 11px;
+  color: var(--faint);
+  font-family: var(--mono);
+}
+
+/* PAGES */
+.page { display: none; animation: fadeIn .2s ease; }
+.page.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+/* TYPOGRAPHY */
+.page-title {
+  font-family: var(--display);
+  font-size: 30px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.03em;
+  margin-bottom: 6px;
+}
+.page-sub {
+  font-size: 14px;
+  color: var(--muted);
+  margin-bottom: 32px;
+  line-height: 1.5;
+}
+h3 {
+  font-family: var(--display);
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--text);
+  margin: 28px 0 10px;
+}
+h4 {
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--muted);
+  margin-bottom: 8px;
+  font-family: var(--mono);
+}
+p { color: var(--muted); font-size: 14px; line-height: 1.7; margin-bottom: 10px; }
+p:last-child { margin-bottom: 0; }
+strong { color: var(--text); font-weight: 500; }
+
+/* CARDS */
+.card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 18px 20px;
+  margin-bottom: 14px;
+}
+.card-accent {
+  background: var(--accent-bg);
+  border-color: var(--accent-border);
+}
+.card-green {
+  background: var(--green-bg);
+  border-color: rgba(52,211,153,0.25);
+}
+.card-amber {
+  background: var(--amber-bg);
+  border-color: rgba(251,191,36,0.25);
+}
+.card-red {
+  background: var(--red-bg);
+  border-color: rgba(248,113,113,0.2);
+}
+.callout {
+  border-left: 2px solid var(--accent);
+  background: var(--accent-bg);
+  border-radius: 0 8px 8px 0;
+  padding: 10px 14px;
+  margin: 12px 0;
+  font-size: 13px;
+  color: var(--muted);
+}
+.callout.green { border-color: var(--green); background: var(--green-bg); }
+.callout.amber { border-color: var(--amber); background: var(--amber-bg); }
+
+/* CODE */
+.code {
+  font-family: var(--mono);
+  font-size: 12.5px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px 16px;
+  margin: 10px 0;
+  line-height: 1.9;
+  color: var(--text);
+  overflow-x: auto;
+  white-space: pre;
+}
+.code .c { color: var(--muted); }
+.code .k { color: var(--accent2); }
+.code .v { color: var(--green); }
+.code .s { color: var(--amber); }
+.code .n { color: #60a5fa; }
+.hl { background: rgba(124,106,255,0.15); border-radius: 3px; padding: 1px 4px; color: var(--accent2); font-family: var(--mono); font-size: 12px; }
+.hl-g { background: rgba(52,211,153,0.15); border-radius: 3px; padding: 1px 4px; color: var(--green); font-family: var(--mono); font-size: 12px; }
+.hl-a { background: rgba(251,191,36,0.12); border-radius: 3px; padding: 1px 4px; color: var(--amber); font-family: var(--mono); font-size: 12px; }
+
+/* GRID */
+.g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 12px 0; }
+.g3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin: 12px 0; }
+
+/* METRICS */
+.metric { background: var(--bg3); border-radius: 8px; padding: 12px 14px; }
+.metric .val { font-size: 22px; font-weight: 500; font-family: var(--display); color: var(--text); }
+.metric .lbl { font-size: 11px; color: var(--faint); margin-top: 2px; font-family: var(--mono); }
+
+/* TABLE */
+.tbl-wrap { overflow-x: auto; margin: 12px 0; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th { text-align: left; padding: 9px 12px; background: var(--bg3); color: var(--muted); font-weight: 500; border-bottom: 1px solid var(--border); font-family: var(--mono); font-size: 11px; letter-spacing:.04em; text-transform: uppercase; }
+td { padding: 9px 12px; border-bottom: 1px solid var(--border); color: var(--text); vertical-align: top; font-size: 13px; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: var(--bg3); }
+
+/* BADGE */
+.badge { display: inline-block; font-size: 10px; font-weight: 500; padding: 2px 8px; border-radius: 99px; font-family: var(--mono); }
+.badge-purple { background: var(--accent-bg); color: var(--accent2); border: 1px solid var(--accent-border); }
+.badge-green { background: var(--green-bg); color: var(--green); border: 1px solid rgba(52,211,153,0.3); }
+.badge-amber { background: var(--amber-bg); color: var(--amber); border: 1px solid rgba(251,191,36,0.3); }
+.badge-red { background: var(--red-bg); color: var(--red); border: 1px solid rgba(248,113,113,0.3); }
+
+/* INTERACTIVE */
+.slider-row { display: flex; align-items: center; gap: 12px; margin: 8px 0; }
+.slider-row label { font-size: 12px; color: var(--muted); min-width: 140px; font-family: var(--mono); }
+.slider-row .val { font-size: 13px; font-weight: 500; min-width: 56px; text-align: right; color: var(--text); font-family: var(--mono); }
+input[type=range] { flex: 1; -webkit-appearance: none; height: 4px; background: var(--bg4); border-radius: 2px; outline: none; cursor: pointer; }
+input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%; background: var(--accent); cursor: pointer; border: 2px solid var(--bg); }
+
+/* PILL TABS */
+.tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+.tab { font-size: 12px; padding: 5px 14px; border-radius: 99px; border: 1px solid var(--border2); background: transparent; color: var(--muted); cursor: pointer; transition: all .15s; font-family: var(--mono); }
+.tab:hover { background: var(--bg3); color: var(--text); }
+.tab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+/* CANVAS */
+canvas { width: 100%; border-radius: 8px; display: block; }
+
+/* STEP STEPPER */
+.stepper { margin: 14px 0; }
+.step { display: flex; gap: 14px; margin-bottom: 18px; }
+.step-num { width: 26px; height: 26px; border-radius: 50%; background: var(--accent-bg); border: 1px solid var(--accent-border); color: var(--accent2); font-size: 11px; font-weight: 600; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-family: var(--mono); margin-top: 1px; }
+.step-body { flex: 1; }
+.step-title { font-size: 14px; font-weight: 500; color: var(--text); margin-bottom: 5px; }
+
+/* NETWORK VIZ */
+.net-wrap { background: var(--bg3); border-radius: 10px; border: 1px solid var(--border); padding: 12px; margin: 12px 0; }
+
+/* DIVIDER */
+.divider { height: 1px; background: var(--border); margin: 28px 0; }
+
+/* RESPONSIVE */
+@media(max-width: 820px) {
+  .sidebar { width: 200px; min-width: 200px; }
+  .main { padding: 24px 20px; }
+  .g3 { grid-template-columns: 1fr 1fr; }
+}
+@media(max-width: 620px) {
+  .shell { flex-direction: column; }
+  .sidebar { width: 100%; min-width: 0; height: auto; position: static; flex-direction: row; flex-wrap: wrap; }
+  .sidebar-nav { display: flex; flex-wrap: wrap; padding: 8px; }
+  .nav-section-label { display: none; }
+  .sidebar-logo, .sidebar-footer { display: none; }
+  .main { padding: 20px 16px; }
+  .g2, .g3 { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <div class="wordmark">ML Study</div>
+    <div class="sub">// deep dive edition</div>
+  </div>
+  <div class="sidebar-nav">
+    <div class="nav-section-label">Foundations</div>
+    <div class="nav-item active" onclick="go('bp')"><div class="nav-dot"></div>Backpropagation</div>
+    <div class="nav-item" onclick="go('optim')"><div class="nav-dot"></div>Optimizers</div>
+    <div class="nav-section-label">Architectures</div>
+    <div class="nav-item" onclick="go('cnn')"><div class="nav-dot"></div>CNNs</div>
+    <div class="nav-item" onclick="go('rnn')"><div class="nav-dot"></div>RNN / LSTM / GRU</div>
+    <div class="nav-section-label">Algorithms</div>
+    <div class="nav-item" onclick="go('nb')"><div class="nav-dot"></div>Naive Bayes</div>
+    <div class="nav-item" onclick="go('ada')"><div class="nav-dot"></div>AdaBoost</div>
+    <div class="nav-section-label">Loss Functions</div>
+    <div class="nav-item" onclick="go('loss')"><div class="nav-dot"></div>Loss Functions</div>
+  </div>
+  <div class="sidebar-footer">7 topics &nbsp;·&nbsp; interactive</div>
+</nav>
+
+<!-- MAIN -->
+<main class="main">
+
+<!-- ═══ BACKPROPAGATION ═══ -->
+<div class="page active" id="page-bp">
+  <div class="page-title">Backpropagation</div>
+  <div class="page-sub">How a neural network learns — computing gradients via the chain rule and propagating them backward through every layer.</div>
+
+  <h3>The big picture</h3>
+  <p>Training has two phases. The <strong>forward pass</strong> computes a prediction. The <strong>backward pass</strong> figures out how much each weight was responsible for the error, then nudges every weight in the direction that reduces it.</p>
+  <div class="callout">The key insight: the chain rule from calculus lets us break a complex derivative into a product of simpler ones — each layer only needs to know its own local gradient.</div>
+
+  <h3>Forward pass — layer by layer</h3>
+  <p>Each layer does the same two operations: a linear transform, then a non-linearity.</p>
+  <div class="code"><span class="k">z</span> = W·x + b         <span class="c">← pre-activation (linear)</span>
+<span class="k">a</span> = σ(z)            <span class="c">← post-activation (non-linear)</span>
+<span class="k">L</span> = loss(a_final, y) <span class="c">← scalar error at the end</span></div>
+  <div class="callout amber">Without non-linearities: W3(W2(W1·x)) = W_combined·x — the entire deep network collapses to a single linear model. Depth becomes meaningless.</div>
+
+  <h3>Backward pass — the chain rule</h3>
+  <p>To update a weight W¹ in the first layer, we need ∂L/∂W¹. The chain rule lets us factor this:</p>
+  <div class="code">∂L/∂W¹ = <span class="v">∂L/∂a³</span> · <span class="n">∂a³/∂z³</span> · <span class="v">∂z³/∂a²</span> · <span class="n">∂a²/∂z²</span> · <span class="v">∂z²/∂a¹</span> · <span class="n">∂a¹/∂z¹</span> · <span class="v">∂z¹/∂W¹</span>
+
+<span class="c">Computed RIGHT to LEFT — from loss back toward inputs.</span>
+<span class="c">Each layer stores its δ (local error signal) and passes it back.</span>
+
+δ_output = ∂L/∂z        = (a - y)           <span class="c">← for MSE loss</span>
+δ_hidden = (W_next^T · δ_next) ⊙ σ'(z)      <span class="c">← propagate backward</span>
+∂L/∂W   = δ · a_prev^T
+∂L/∂b   = δ</div>
+
+  <h3>Activation functions — live demo</h3>
+  <div class="card">
+    <div class="tabs" id="activ-tabs">
+      <button class="tab active" onclick="setActiv('relu',this)">ReLU</button>
+      <button class="tab" onclick="setActiv('sigmoid',this)">Sigmoid</button>
+      <button class="tab" onclick="setActiv('tanh',this)">Tanh</button>
+      <button class="tab" onclick="setActiv('leaky',this)">Leaky ReLU</button>
+      <button class="tab" onclick="setActiv('gelu',this)">GELU</button>
+    </div>
+    <canvas id="activCanvas" height="180"></canvas>
+    <p id="activDesc" style="margin-top:12px;font-size:13px"></p>
+  </div>
+
+  <h3>Vanishing &amp; exploding gradients</h3>
+  <div class="g2">
+    <div class="card card-red">
+      <h4>Vanishing</h4>
+      <p>Sigmoid/tanh saturate → derivatives near 0 → gradients shrink exponentially through layers → early layers learn <em>nothing</em>.</p>
+      <p style="margin-top:6px"><strong>Fix:</strong> ReLU activations, skip connections (ResNets), batch normalization.</p>
+    </div>
+    <div class="card card-amber">
+      <h4>Exploding</h4>
+      <p>Gradients grow exponentially — weights blow up, training diverges (NaN loss).</p>
+      <p style="margin-top:6px"><strong>Fix:</strong> Gradient clipping, weight initialization, layer norm.</p>
+    </div>
+  </div>
+
+  <h3>Weight initialization</h3>
+  <div class="tbl-wrap"><table>
+    <tr><th>Method</th><th>Formula</th><th>Use with</th><th>Why</th></tr>
+    <tr><td><span class="badge badge-purple">Xavier</span></td><td class="code" style="padding:4px 8px;margin:0;font-size:11px">W ~ U[-√(6/(nᵢₙ+nₒᵤₜ)), ...]</td><td>Sigmoid, Tanh</td><td>Keeps variance stable across layers</td></tr>
+    <tr><td><span class="badge badge-green">He</span></td><td class="code" style="padding:4px 8px;margin:0;font-size:11px">W ~ N(0, √(2/nᵢₙ))</td><td>ReLU</td><td>Accounts for ReLU zeroing half inputs</td></tr>
+    <tr><td><span class="badge badge-red">Zero</span></td><td class="code" style="padding:4px 8px;margin:0;font-size:11px">W = 0</td><td>Never!</td><td>Symmetry: all neurons identical, never learn</td></tr>
+  </table></div>
+
+  <h3>Dropout</h3>
+  <p>During training, randomly zero out each neuron with probability p. Forces the network to learn redundant representations — no single neuron gets relied upon.</p>
+  <div class="code"><span class="c">Train time (inverted dropout):</span>
+mask = Bernoulli(1-p)
+a_drop = a ⊙ mask / (1-p)   <span class="c">← scale up so expected value stays same</span>
+
+<span class="c">Test time:</span>
+a_out = a                    <span class="c">← use all neurons as-is, no scaling needed</span></div>
+</div>
+
+<!-- ═══ OPTIMIZERS ═══ -->
+<div class="page" id="page-optim">
+  <div class="page-title">Optimization Algorithms</div>
+  <div class="page-sub">Six algorithms that solve the same problem — update weights to minimize loss — but differ in how they use gradient history.</div>
+
+  <div class="tabs" id="optim-tabs">
+    <button class="tab active" onclick="showOptim('sgd',this)">SGD</button>
+    <button class="tab" onclick="showOptim('mom',this)">Momentum</button>
+    <button class="tab" onclick="showOptim('nag',this)">NAG</button>
+    <button class="tab" onclick="showOptim('adagrad',this)">Adagrad</button>
+    <button class="tab" onclick="showOptim('rmsprop',this)">RMSProp</button>
+    <button class="tab" onclick="showOptim('adam',this)">Adam</button>
+  </div>
+  <div id="optim-body"></div>
+
+  <div class="divider"></div>
+
+  <h3>Side-by-side comparison</h3>
+  <div class="tbl-wrap"><table>
+    <tr><th>Optimizer</th><th>Extra memory</th><th>Adaptive LR</th><th>Best for</th><th>Pitfall</th></tr>
+    <tr><td>SGD</td><td>None</td><td>No</td><td>Vision with tuning</td><td>Slow, oscillates in ravines</td></tr>
+    <tr><td>Momentum</td><td>v</td><td>No</td><td>Convex + noisy loss</td><td>Can overshoot</td></tr>
+    <tr><td>NAG</td><td>v</td><td>No</td><td>Slightly better than momentum</td><td>More complex to implement</td></tr>
+    <tr><td>Adagrad</td><td>G (sum sq.)</td><td>Yes</td><td>Sparse NLP features</td><td>LR decays to zero</td></tr>
+    <tr><td>RMSProp</td><td>v²</td><td>Yes</td><td>RNNs, non-stationary</td><td>No bias correction</td></tr>
+    <tr><td>Adam</td><td>m, v</td><td>Yes</td><td>Default choice, NLP</td><td>May generalize worse than SGD</td></tr>
+  </table></div>
+
+  <h3>Gradient descent variants</h3>
+  <div class="g3">
+    <div class="card"><h4>Batch GD</h4><p>Full dataset per update. Stable gradient estimate but extremely slow. Not practical for large datasets.</p></div>
+    <div class="card"><h4>SGD</h4><p>One sample per update. Noisy but fast. Noise helps escape local minima. Still the term used for mini-batch in practice.</p></div>
+    <div class="card"><h4>Mini-batch</h4><p>Best of both worlds — batch size 32–256. GPU-parallelizable. Standard in practice.</p></div>
+  </div>
+
+  <h3>Learning rate scheduling</h3>
+  <div class="code">Step decay:    lr = lr₀ × γ^⌊epoch/step_size⌋
+Cosine decay:  lr = lr_min + ½(lr_max - lr_min)(1 + cos(πt/T))
+Warmup:        lr increases linearly for k steps, then decays
+OneCycleLR:    warmup → peak → cosine decay (fast convergence)</div>
+  <div class="callout amber">Warmup is critical when fine-tuning transformers — a large learning rate at the start will destroy pre-trained weights.</div>
+</div>
+
+<!-- ═══ CNN ═══ -->
+<div class="page" id="page-cnn">
+  <div class="page-title">Convolutional Neural Networks</div>
+  <div class="page-sub">CNNs exploit the spatial structure of images using weight sharing, local connectivity, and hierarchical feature learning.</div>
+
+  <h3>Why convolutions?</h3>
+  <div class="g2">
+    <div class="card"><h4>Weight sharing</h4><p>The same 3×3 filter slides across the entire image. An edge detector learned in the top-left corner works everywhere. Vastly fewer parameters than a dense layer.</p></div>
+    <div class="card"><h4>Hierarchical features</h4><p>Layer 1 detects edges. Layer 2 detects textures. Layer 3 detects object parts. Layer N detects whole objects. Depth builds abstraction.</p></div>
+  </div>
+
+  <h3>Conv layer math</h3>
+  <div class="code">Output size = ⌊(W - F + 2P) / S⌋ + 1
+
+W = input size, F = filter size, P = padding, S = stride
+
+Parameters = F × F × C_in × C_out + C_out  (biases)
+
+Example: 3×3 conv, 64 → 128 channels
+  = 3×3×64×128 + 128 = <span class="v">73,856 params</span>
+  Dense equivalent would be: 64×H×W × 128×H×W = millions</div>
+
+  <h3>Batch normalization</h3>
+  <div class="code">x_norm = (x - μ_batch) / √(σ²_batch + ε)
+y      = γ · x_norm + β    <span class="c">← learned scale and shift per channel</span></div>
+  <p>Benefits: faster training, acts as regularizer, allows higher learning rates, reduces sensitivity to initialization. Applied before or after activation (before is more common now).</p>
+
+  <h3>Feature visualization techniques</h3>
+  <div class="tbl-wrap"><table>
+    <tr><th>Technique</th><th>What it shows</th><th>How</th></tr>
+    <tr><td><span class="badge badge-purple">Filter viz</span></td><td>What pattern a filter detects</td><td>Display learned conv1 weight kernels directly</td></tr>
+    <tr><td><span class="badge badge-purple">Activation maps</span></td><td>Where a filter fires on an input</td><td>Forward pass → visualize intermediate feature map</td></tr>
+    <tr><td><span class="badge badge-green">Grad-CAM</span></td><td>Where model looked for its decision</td><td>Gradients into last conv layer → weighted spatial map</td></tr>
+    <tr><td><span class="badge badge-amber">Activation max</span></td><td>What input maximally excites a neuron</td><td>Backprop into input pixels, gradient ascent</td></tr>
+    <tr><td><span class="badge badge-amber">SHAP</span></td><td>Per-pixel attribution</td><td>Perturb patches, measure output change</td></tr>
+  </table></div>
+
+  <h3>Grad-CAM explained</h3>
+  <div class="code"><span class="c">1. Forward pass — store last conv layer activations A^k (H×W×K)</span>
+<span class="c">2. Backprop — compute gradients ∂y_c/∂A^k for class c</span>
+<span class="c">3. Global average pool the gradients:</span>
+   α_k = (1/HW) Σᵢⱼ ∂y_c/∂A^k_ij      <span class="c">← importance of channel k</span>
+<span class="c">4. Weighted combination + ReLU:</span>
+   L_CAM = ReLU(Σ_k α_k · A^k)         <span class="c">← heatmap (H×W)</span>
+<span class="c">5. Upsample heatmap to input resolution and overlay</span></div>
+
+  <h3>Fine-tuning pre-trained models</h3>
+  <div class="stepper">
+    <div class="step"><div class="step-num">1</div><div class="step-body"><div class="step-title">Load pre-trained model</div><p>Load ResNet/EfficientNet/ViT pre-trained on ImageNet. It has learned rich features: edges → textures → object parts → objects across 1.2M images.</p></div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-body"><div class="step-title">Replace the classification head</div><p>Remove the final FC layer (1000 ImageNet classes). Add a new FC layer for your number of classes, randomly initialized.</p></div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-body"><div class="step-title">Freeze early layers</div><p>Freeze layers 1–N. Only the new head is trainable. Early layers detect generic features that transfer — no need to relearn them.</p></div></div>
+    <div class="step"><div class="step-num">4</div><div class="step-body"><div class="step-title">Train with small LR</div><p>Use LR ≈ 1e-4 or smaller. Use discriminative learning rates — tiny LR for frozen/early layers, larger for the new head.</p></div></div>
+    <div class="step"><div class="step-num">5</div><div class="step-body"><div class="step-title">Progressive unfreezing</div><p>After convergence, unfreeze more layers and continue with an even smaller LR. Repeat until fully unfrozen if needed.</p></div></div>
+  </div>
+
+  <div class="callout green">Normalize inputs with ImageNet stats: mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225] — pre-trained models expect this exact distribution.</div>
+
+  <h3>Classic architectures</h3>
+  <div class="tbl-wrap"><table>
+    <tr><th>Model</th><th>Key innovation</th><th>Params</th></tr>
+    <tr><td>AlexNet (2012)</td><td>First deep CNN to win ImageNet; introduced ReLU + dropout</td><td>60M</td></tr>
+    <tr><td>VGGNet (2014)</td><td>Only 3×3 convs stacked deep — depth matters</td><td>138M</td></tr>
+    <tr><td>ResNet (2015)</td><td>Skip connections — enables 100+ layer training</td><td>25M (50-layer)</td></tr>
+    <tr><td>EfficientNet (2019)</td><td>Compound scaling of width + depth + resolution jointly</td><td>5–66M</td></tr>
+    <tr><td>ViT (2020)</td><td>Pure transformer on image patches — no convolutions</td><td>86M (Base)</td></tr>
+  </table></div>
+</div>
+
+<!-- ═══ RNN ═══ -->
+<div class="page" id="page-rnn">
+  <div class="page-title">RNN / LSTM / GRU &amp; Attention</div>
+  <div class="page-sub">Sequence models that maintain state across time steps — essential for text, speech, time series, and transliteration.</div>
+
+  <h3>Vanilla RNN</h3>
+  <div class="code">h_t = tanh(W_hh · h_{t-1} + W_xh · x_t + b_h)
+y_t = W_hy · h_t + b_y
+
+<span class="c">h_t is the "memory" — carries information from all previous steps.</span>
+<span class="c">Problem: gradients are multiplied by W_hh at EVERY step.</span>
+<span class="c">If eigenvalues of W_hh < 1 → gradients shrink exponentially → vanishing.</span></div>
+  <div class="callout amber">An RNN with 50 time steps must backprop through 50 matrix multiplications. With W_hh having eigenvalues &lt; 1, the gradient at step 1 is W_hh^50 ≈ 0. The network forgets anything beyond ~10 steps.</div>
+
+  <h3>LSTM — Long Short-Term Memory</h3>
+  <p>Introduces a <strong>cell state C_t</strong> — a highway for gradients that flows with only element-wise operations (no matrix multiply). Three gates control information flow:</p>
+  <div class="code">Forget gate:  f_t = σ(W_f · [h_{t-1}, x_t] + b_f)    <span class="c">← what to erase from C</span>
+Input gate:   i_t = σ(W_i · [h_{t-1}, x_t] + b_i)    <span class="c">← what to write to C</span>
+Candidate:    C̃_t = tanh(W_C · [h_{t-1}, x_t] + b_C) <span class="c">← what to write</span>
+Cell update:  C_t = f_t ⊙ C_{t-1} + i_t ⊙ C̃_t       <span class="c">← update cell state</span>
+Output gate:  o_t = σ(W_o · [h_{t-1}, x_t] + b_o)    <span class="c">← what to expose</span>
+Hidden state: h_t = o_t ⊙ tanh(C_t)</div>
+  <div class="callout green">The cell state C_t flows through with only ⊙ (element-wise multiply) and + operations — no weight matrix in the gradient path. This is why gradients don't vanish.</div>
+
+  <h3>GRU — Gated Recurrent Unit</h3>
+  <p>Simplified LSTM: merges forget + input into one update gate, and merges cell state + hidden state. Fewer parameters, often matches LSTM:</p>
+  <div class="code">Reset gate:   r_t = σ(W_r · [h_{t-1}, x_t])
+Update gate:  z_t = σ(W_z · [h_{t-1}, x_t])
+Candidate:    h̃_t = tanh(W · [r_t ⊙ h_{t-1}, x_t])
+New state:    h_t = (1 - z_t) ⊙ h_{t-1} + z_t ⊙ h̃_t  <span class="c">← interpolate old and new</span></div>
+
+  <div class="g2">
+    <div class="card"><h4>Use LSTM when</h4><p>Long sequences with complex dependencies. Large datasets where extra parameters help. Need separate cell and hidden state control.</p></div>
+    <div class="card"><h4>Use GRU when</h4><p>Smaller datasets. Faster training needed. Simpler dependencies. Usually competitive with LSTM at lower computational cost.</p></div>
+  </div>
+
+  <h3>Seq2Seq for transliteration</h3>
+  <div class="code">Encoder: reads source chars x₁...xₙ → final hidden state h_n
+Decoder: generates target chars y₁...yₘ using h_n
+
+<span class="c">The entire source sequence is compressed into ONE fixed-size vector.</span>
+<span class="c">This is the bottleneck — works for short sequences, fails for long ones.</span></div>
+
+  <h3>Attention mechanism</h3>
+  <p>Instead of one fixed context vector, the decoder attends to ALL encoder hidden states at each decoding step:</p>
+  <div class="code">score(h_s, h_t) = h_t^T · W_a · h_s     <span class="c">← alignment score (additive: v·tanh(W₁h_s + W₂h_t))</span>
+α_{ts}          = softmax(score) over all s  <span class="c">← attention weights (sum to 1)</span>
+context_t       = Σ_s α_{ts} · h_s          <span class="c">← weighted sum of encoder states</span>
+output_t        = decoder(context_t, h_{t-1}, y_{t-1})</div>
+  <div class="callout green">For transliteration, attention learns near-monotonic alignment but handles 1-to-many character mappings (one Hindi character → 2 Latin chars). This directly improved the BLEU score.</div>
+
+  <h3>Types of attention</h3>
+  <div class="tbl-wrap"><table>
+    <tr><th>Type</th><th>Score function</th><th>Notes</th></tr>
+    <tr><td>Dot-product</td><td class="code" style="padding:3px 8px;margin:0;font-size:11px">h_s · h_t</td><td>Fast, requires same dimension</td></tr>
+    <tr><td>Scaled dot-product</td><td class="code" style="padding:3px 8px;margin:0;font-size:11px">(h_s · h_t) / √d_k</td><td>Used in Transformers — prevents softmax saturation</td></tr>
+    <tr><td>Additive (Bahdanau)</td><td class="code" style="padding:3px 8px;margin:0;font-size:11px">v^T tanh(W₁h_s + W₂h_t)</td><td>Original attention paper, learned alignment</td></tr>
+    <tr><td>Multi-head</td><td class="code" style="padding:3px 8px;margin:0;font-size:11px">Concat h heads of scaled dot</td><td>Transformers — attends to multiple positions simultaneously</td></tr>
+  </table></div>
+</div>
+
+<!-- ═══ NAIVE BAYES ═══ -->
+<div class="page" id="page-nb">
+  <div class="page-title">Naive Bayes</div>
+  <div class="page-sub">A probabilistic classifier based on Bayes' theorem with one bold assumption: all features are conditionally independent given the class label.</div>
+
+  <h3>Bayes' theorem</h3>
+  <div class="code">P(y | x) = P(x | y) · P(y) / P(x)
+
+Posterior = Likelihood × Prior / Evidence
+
+<span class="c">For classification we compare classes, so P(x) is constant — we ignore it:</span>
+argmax_y P(y | x)  =  argmax_y  P(x | y) · P(y)</div>
+
+  <h3>The naive assumption</h3>
+  <div class="callout">P(x₁, x₂, ..., xₙ | y) = P(x₁|y) · P(x₂|y) · ... · P(xₙ|y). Features are assumed independent given the class. Almost never true in reality — but works surprisingly well, especially for text classification.</div>
+
+  <h3>Training — what we estimate from data</h3>
+  <div class="code">Prior:      P(y=c)      = count(y=c) / N
+Likelihood: P(xᵢ=v|y=c) = count(xᵢ=v in class c) / count(class c)
+
+<span class="c">For continuous features → Gaussian NB:</span>
+P(xᵢ|y=c) = (1/√(2πσ²_ic)) · exp(-(xᵢ-μ_ic)² / 2σ²_ic)
+<span class="c">Estimate μ_ic and σ²_ic per feature per class from training data.</span></div>
+
+  <h3>Laplace smoothing — handle unseen values</h3>
+  <div class="code"><span class="c">Problem: if a word never appeared in class c during training, P(word|c) = 0</span>
+<span class="c">Then the entire product P(x|c) = 0 — one unseen word kills the prediction.</span>
+
+P(xᵢ=v | y=c) = (count(xᵢ=v, y=c) + α) / (count(y=c) + α · |V|)
+
+<span class="c">α = 1 → Laplace smoothing. α > 0 → no zero probabilities ever.</span></div>
+
+  <h3>Log probabilities — avoid underflow</h3>
+  <div class="code"><span class="c">Problem: multiplying 1000 probabilities like 0.001 × 0.003 × ... → rounds to 0 in float32</span>
+
+log P(y|x) ∝ log P(y) + Σᵢ log P(xᵢ|y)
+
+<span class="c">Products become sums of logs — numerically stable, same argmax result.</span></div>
+
+  <h3>Implementation from scratch</h3>
+  <div class="code"><span class="k">class</span> <span class="n">NaiveBayes</span>:
+    <span class="k">def</span> <span class="v">fit</span>(self, X, y):
+        self.classes = np.unique(y)
+        self.priors, self.means, self.vars = {}, {}, {}
+        <span class="k">for</span> c <span class="k">in</span> self.classes:
+            X_c = X[y == c]
+            self.priors[c] = <span class="v">len</span>(X_c) / <span class="v">len</span>(X)
+            self.means[c]  = X_c.<span class="v">mean</span>(axis=0)
+            self.vars[c]   = X_c.<span class="v">var</span>(axis=0)
+
+    <span class="k">def</span> <span class="v">_log_likelihood</span>(self, x, mean, var):
+        log_exp = -((x - mean)**2) / (2 * var + <span class="s">1e-9</span>)
+        log_norm = -0.5 * np.<span class="v">log</span>(2 * np.pi * var + <span class="s">1e-9</span>)
+        <span class="k">return</span> np.<span class="v">sum</span>(log_norm + log_exp)
+
+    <span class="k">def</span> <span class="v">predict</span>(self, X):
+        preds = []
+        <span class="k">for</span> x <span class="k">in</span> X:
+            scores = {c: np.<span class="v">log</span>(self.priors[c]) +
+                         self._log_likelihood(x, self.means[c], self.vars[c])
+                      <span class="k">for</span> c <span class="k">in</span> self.classes}
+            preds.<span class="v">append</span>(<span class="v">max</span>(scores, key=scores.<span class="v">get</span>))
+        <span class="k">return</span> preds</div>
+
+  <h3>Variants</h3>
+  <div class="tbl-wrap"><table>
+    <tr><th>Variant</th><th>Feature type</th><th>Likelihood model</th><th>Best use case</th></tr>
+    <tr><td>Gaussian NB</td><td>Continuous</td><td>Gaussian distribution</td><td>Real-valued features (sepal length, etc.)</td></tr>
+    <tr><td>Multinomial NB</td><td>Counts / frequencies</td><td>Multinomial distribution</td><td>Text classification (word counts, TF-IDF)</td></tr>
+    <tr><td>Bernoulli NB</td><td>Binary (present/absent)</td><td>Bernoulli distribution</td><td>Short docs, binary bag-of-words</td></tr>
+    <tr><td>Complement NB</td><td>Counts</td><td>Complement class stats</td><td>Imbalanced text datasets</td></tr>
+  </table></div>
+</div>
+
+<!-- ═══ ADABOOST ═══ -->
+<div class="page" id="page-ada">
+  <div class="page-title">AdaBoost</div>
+  <div class="page-sub">Adaptive Boosting: train a sequence of weak learners where each one focuses on the mistakes of its predecessors, then combine with weighted vote.</div>
+
+  <h3>Core intuition</h3>
+  <div class="callout">A "weak learner" only needs to be slightly better than random (>50% accuracy). AdaBoost amplifies the weights of misclassified samples so each new learner is forced to focus on the hard cases.</div>
+
+  <h3>Algorithm — full walkthrough</h3>
+  <div class="code"><span class="c">Initialize:</span>  wᵢ = 1/N  for all i = 1...N
+
+<span class="k">for</span> t = 1 to T:
+  <span class="c">a)</span> Train weak learner h_t on weighted training data
+  <span class="c">b)</span> Weighted error:   εₜ = Σᵢ wᵢ · 𝟙[h_t(xᵢ) ≠ yᵢ]
+  <span class="c">c)</span> Learner weight:   αₜ = ½ · ln((1 - εₜ) / εₜ)   <span class="c">← large if ε→0, zero if ε=0.5</span>
+  <span class="c">d)</span> Update weights:   wᵢ ← wᵢ · exp(-αₜ · yᵢ · h_t(xᵢ))
+                          <span class="c">↑ grows for misclassified, shrinks for correct</span>
+  <span class="c">e)</span> Normalize:        wᵢ ← wᵢ / Σⱼ wⱼ
+
+<span class="c">Final:</span>  H(x) = sign(Σₜ αₜ · h_t(x))  <span class="c">← weighted majority vote</span></div>
+
+  <h3>Understanding the learner weight α</h3>
+  <div class="card">
+    <canvas id="alphaCanvas" height="200"></canvas>
+    <p style="margin-top:10px;font-size:13px">When ε → 0 (near-perfect learner): α → ∞ — huge weight, dominates the ensemble. When ε = 0.5 (random guess): α = 0 — completely ignored. When ε > 0.5: α &lt; 0 — flip its predictions!</p>
+  </div>
+
+  <h3>Weight update explained</h3>
+  <div class="g2">
+    <div class="card card-green"><h4>Correctly classified (yᵢ·h_t(xᵢ) = +1)</h4><p>exp(-αₜ) &lt; 1 → weight shrinks. This sample gets less attention in the next round.</p></div>
+    <div class="card card-red"><h4>Misclassified (yᵢ·h_t(xᵢ) = -1)</h4><p>exp(+αₜ) &gt; 1 → weight grows. Next learner is forced to focus here.</p></div>
+  </div>
+
+  <h3>Implementation from scratch</h3>
+  <div class="code"><span class="k">class</span> <span class="n">DecisionStump</span>:
+    <span class="k">def</span> <span class="v">fit</span>(self, X, y, weights):
+        best = {<span class="s">'err'</span>: <span class="v">float</span>(<span class="s">'inf'</span>)}
+        <span class="k">for</span> feat <span class="k">in</span> <span class="v">range</span>(X.shape[1]):
+            <span class="k">for</span> thresh <span class="k">in</span> np.<span class="v">unique</span>(X[:, feat]):
+                <span class="k">for</span> polarity <span class="k">in</span> [1, -1]:
+                    preds = polarity * np.<span class="v">sign</span>(X[:, feat] - thresh)
+                    err = np.<span class="v">sum</span>(weights[preds != y])
+                    <span class="k">if</span> err &lt; best[<span class="s">'err'</span>]:
+                        best = {<span class="s">'err'</span>:err, <span class="s">'feat'</span>:feat, <span class="s">'thresh'</span>:thresh, <span class="s">'pol'</span>:polarity}
+        self.__dict__.<span class="v">update</span>(best)
+
+    <span class="k">def</span> <span class="v">predict</span>(self, X):
+        <span class="k">return</span> self.pol * np.<span class="v">sign</span>(X[:, self.feat] - self.thresh)
+
+<span class="k">class</span> <span class="n">AdaBoost</span>:
+    <span class="k">def</span> <span class="v">fit</span>(self, X, y, T=50):
+        n = <span class="v">len</span>(y)
+        w = np.<span class="v">ones</span>(n) / n
+        self.stumps, self.alphas = [], []
+        <span class="k">for</span> _ <span class="k">in</span> <span class="v">range</span>(T):
+            stump = <span class="n">DecisionStump</span>()
+            stump.<span class="v">fit</span>(X, y, w)
+            preds = stump.<span class="v">predict</span>(X)
+            eps   = np.<span class="v">sum</span>(w[preds != y]) + <span class="s">1e-10</span>
+            alpha = 0.5 * np.<span class="v">log</span>((1 - eps) / eps)
+            w    *= np.<span class="v">exp</span>(-alpha * y * preds)
+            w    /= w.<span class="v">sum</span>()
+            self.stumps.<span class="v">append</span>(stump)
+            self.alphas.<span class="v">append</span>(alpha)
+
+    <span class="k">def</span> <span class="v">predict</span>(self, X):
+        <span class="k">return</span> np.<span class="v">sign</span>(<span class="v">sum</span>(a * s.<span class="v">predict</span>(X)
+                          <span class="k">for</span> a, s <span class="k">in</span> <span class="v">zip</span>(self.alphas, self.stumps)))</div>
+
+  <h3>Properties</h3>
+  <div class="g2">
+    <div class="card"><h4>Training error</h4><p>Decreases exponentially with T. Provably converges to zero training error if each weak learner beats random chance.</p></div>
+    <div class="card"><h4>Sensitivity</h4><p>Resistant to overfitting in practice. But very sensitive to noisy labels and outliers — they get amplified exponentially.</p></div>
+  </div>
+</div>
+
+<!-- ═══ LOSS FUNCTIONS ═══ -->
+<div class="page" id="page-loss">
+  <div class="page-title">Loss Functions</div>
+  <div class="page-sub">The loss defines what the model optimizes for. Choosing the wrong one can cripple training even with a perfect architecture.</div>
+
+  <div class="tabs" id="loss-tabs">
+    <button class="tab active" onclick="showLoss('mse',this)">MSE</button>
+    <button class="tab" onclick="showLoss('mae',this)">MAE</button>
+    <button class="tab" onclick="showLoss('huber',this)">Huber</button>
+    <button class="tab" onclick="showLoss('bce',this)">Binary CE</button>
+    <button class="tab" onclick="showLoss('ce',this)">Cross-Entropy</button>
+    <button class="tab" onclick="showLoss('hinge',this)">Hinge</button>
+    <button class="tab" onclick="showLoss('kl',this)">KL Divergence</button>
+  </div>
+  <div id="loss-body"></div>
+
+  <div class="divider"></div>
+
+  <h3>Interactive comparison — regression losses</h3>
+  <div class="card">
+    <div class="slider-row">
+      <label>Prediction error</label>
+      <input type="range" min="-5" max="5" step="0.1" value="2" id="errSlider" oninput="updateLossViz(this.value)">
+      <span class="val" id="errVal">2.0</span>
+    </div>
+    <div class="g3" style="margin:14px 0">
+      <div class="metric"><div class="val" id="mseV">4.000</div><div class="lbl">MSE</div></div>
+      <div class="metric"><div class="val" id="maeV">2.000</div><div class="lbl">MAE</div></div>
+      <div class="metric"><div class="val" id="hubV">1.500</div><div class="lbl">Huber (δ=1)</div></div>
+    </div>
+    <canvas id="lossCanvas" height="200"></canvas>
+  </div>
+
+  <h3>Implementation</h3>
+  <div class="code"><span class="k">import</span> numpy <span class="k">as</span> np
+
+<span class="c"># Regression losses</span>
+<span class="k">def</span> <span class="v">mse</span>(y, yhat):         <span class="k">return</span> np.<span class="v">mean</span>((y - yhat)**2)
+<span class="k">def</span> <span class="v">mae</span>(y, yhat):         <span class="k">return</span> np.<span class="v">mean</span>(np.<span class="v">abs</span>(y - yhat))
+<span class="k">def</span> <span class="v">huber</span>(y, yhat, d=1):
+    e = y - yhat
+    <span class="k">return</span> np.<span class="v">where</span>(np.<span class="v">abs</span>(e) &lt;= d,
+                    0.5 * e**2,
+                    d * (np.<span class="v">abs</span>(e) - 0.5*d)).<span class="v">mean</span>()
+
+<span class="c"># Classification losses</span>
+<span class="k">def</span> <span class="v">bce</span>(y, p):
+    p = np.<span class="v">clip</span>(p, <span class="s">1e-9</span>, 1-<span class="s">1e-9</span>)
+    <span class="k">return</span> -np.<span class="v">mean</span>(y*np.<span class="v">log</span>(p) + (1-y)*np.<span class="v">log</span>(1-p))
+
+<span class="k">def</span> <span class="v">cross_entropy</span>(y_onehot, logits):
+    p = <span class="v">softmax</span>(logits)
+    <span class="k">return</span> -np.<span class="v">sum</span>(y_onehot * np.<span class="v">log</span>(p + <span class="s">1e-9</span>))
+
+<span class="k">def</span> <span class="v">softmax</span>(x):
+    e = np.<span class="v">exp</span>(x - np.<span class="v">max</span>(x))   <span class="c"># subtract max for numerical stability</span>
+    <span class="k">return</span> e / e.<span class="v">sum</span>()
+
+<span class="k">def</span> <span class="v">hinge</span>(y, s):     <span class="c"># y in {-1, +1}</span>
+    <span class="k">return</span> np.<span class="v">mean</span>(np.<span class="v">maximum</span>(0, 1 - y*s))
+
+<span class="k">def</span> <span class="v">kl_div</span>(p, q):
+    <span class="k">return</span> np.<span class="v">sum</span>(p * np.<span class="v">log</span>(p / (q + <span class="s">1e-9</span>)))</div>
+
+  <h3>Gradient cheat sheet</h3>
+  <div class="tbl-wrap"><table>
+    <tr><th>Loss</th><th>Gradient ∂L/∂ŷ</th><th>Key property</th></tr>
+    <tr><td>MSE</td><td class="code" style="padding:3px 8px;margin:0;font-size:11px">2(ŷ - y) / n</td><td>Large errors → large gradient</td></tr>
+    <tr><td>MAE</td><td class="code" style="padding:3px 8px;margin:0;font-size:11px">sign(ŷ - y) / n</td><td>Constant magnitude, sparse</td></tr>
+    <tr><td>BCE</td><td class="code" style="padding:3px 8px;margin:0;font-size:11px">-y/ŷ + (1-y)/(1-ŷ)</td><td>With sigmoid: simplifies to ŷ - y</td></tr>
+    <tr><td>CE + Softmax</td><td class="code" style="padding:3px 8px;margin:0;font-size:11px">ŷ - y_onehot</td><td>Elegantly simple — just predictions minus labels</td></tr>
+    <tr><td>Hinge</td><td class="code" style="padding:3px 8px;margin:0;font-size:11px">-y if y·s &lt; 1, else 0</td><td>Zero gradient for correctly classified (sparse)</td></tr>
+  </table></div>
+</div>
+
+</main>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script>
+// ── NAV ──
+function go(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  event.currentTarget.classList.add('active');
+  if(id==='optim') { showOptim('sgd', document.querySelector('#optim-tabs .tab')); }
+  if(id==='loss')  { showLoss('mse', document.querySelector('#loss-tabs .tab')); updateLossViz(2); }
+  if(id==='ada')   { setTimeout(drawAlpha, 80); }
+}
+
+// ── ACTIVATION CHART ──
+const ACTIVS = {
+  relu:    { fn: x=>Math.max(0,x),          df: x=>x>0?1:0,                    desc: 'max(0, x). Gradient is 1 for x>0 and 0 otherwise. No saturation for positive inputs — solves vanishing gradients for deep networks. Dying ReLU problem: if z is always negative, the neuron outputs 0 forever and its gradient is always 0 — it "dies". Fix: He init, small LR, or Leaky ReLU.' },
+  sigmoid: { fn: x=>1/(1+Math.exp(-x)),     df: x=>{let s=1/(1+Math.exp(-x));return s*(1-s)}, desc: '1/(1+e⁻ˣ). Output in (0,1) — good for output layer in binary classification. Problem: saturates at both ends (gradient ≈ 0 for large |x|). Max derivative is 0.25 at x=0, which means gradients are cut by at least 4× per layer → vanishing gradients in deep networks.' },
+  tanh:    { fn: x=>Math.tanh(x),           df: x=>1-Math.tanh(x)**2,          desc: 'tanh(x). Output in (-1,1) — zero-centered, unlike sigmoid. Zero-centering helps the next layer since inputs are balanced. Still saturates at ±1. Preferred over sigmoid for hidden layers in older architectures. Max derivative is 1.0 at x=0.' },
+  leaky:   { fn: x=>x>0?x:0.01*x,          df: x=>x>0?1:0.01,                 desc: 'max(0.01x, x). Fixes the dying ReLU problem — negative inputs still receive a small gradient (0.01). Parametric ReLU (PReLU) learns this slope. ELU uses an exponential for the negative region, giving smoother gradients.' },
+  gelu:    { fn: x=>0.5*x*(1+Math.tanh(Math.sqrt(2/Math.PI)*(x+0.044715*x**3))), df: x=>{let c=Math.sqrt(2/Math.PI),t=Math.tanh(c*(x+0.044715*x**3));return 0.5*(1+t)+0.5*x*(1-t**2)*c*(1+3*0.044715*x**2);}, desc: 'x · Φ(x) where Φ is the Gaussian CDF. Used in BERT, GPT, ViT. Smooth, non-monotonic — small negative values can pass through. Empirically outperforms ReLU on NLP tasks. No exact closed form — typically approximated with tanh.' }
+};
+let activChart = null;
+function setActiv(type, btn) {
+  if(btn) { document.querySelectorAll('#activ-tabs .tab').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); }
+  const d = ACTIVS[type];
+  const xs = Array.from({length:120},(_,i)=>-3+i*0.05);
+  const ys = xs.map(d.fn), dys = xs.map(d.df);
+  document.getElementById('activDesc').textContent = d.desc;
+  const ctx = document.getElementById('activCanvas').getContext('2d');
+  if(activChart) activChart.destroy();
+  activChart = new Chart(ctx,{type:'line',data:{labels:xs.map(x=>x.toFixed(2)),datasets:[
+    {label:'f(x)',data:ys,borderColor:'#7c6aff',borderWidth:2,pointRadius:0,fill:false,tension:.1},
+    {label:"f'(x)",data:dys,borderColor:'#34d399',borderWidth:1.5,pointRadius:0,fill:false,tension:.1,borderDash:[5,3]}
+  ]},options:{responsive:true,animation:false,plugins:{legend:{labels:{color:'#7a7a95',font:{size:12}}},tooltip:{enabled:false}},scales:{x:{ticks:{maxTicksLimit:9,color:'#3a3a50',font:{size:11}},grid:{color:'rgba(255,255,255,0.04)'}},y:{ticks:{color:'#3a3a50',font:{size:11}},grid:{color:'rgba(255,255,255,0.04)'}}}}});
+}
+setActiv('relu');
+
+// ── OPTIMIZERS ──
+const OPTIMS = {
+  sgd:{
+    title:'SGD — Stochastic Gradient Descent', badge:'baseline',
+    formula:`w ← w - η · ∇L(w)`,
+    body:`Plain gradient descent with no memory and no adaptation. Each parameter receives the same learning rate η regardless of gradient history or scale.
+
+Problems: oscillates in ravines (high curvature in one direction, low in another). Slow convergence. Very sensitive to learning rate choice — too high diverges, too low is painfully slow.
+
+When to use: with careful tuning and scheduling (cosine decay, warmup), SGD+Momentum often beats adaptive methods on vision tasks because the noise acts as implicit regularization, avoiding sharp minima that don't generalize.`
+  },
+  mom:{
+    title:'Momentum', badge:'+ velocity',
+    formula:`v_t ← β · v_{t-1} + η · ∇L(w)
+w ← w - v_t`,
+    body:`Accumulates an exponentially decaying moving average of past gradients (a "velocity"). β ≈ 0.9 is typical.
+
+Intuition: a ball rolling downhill builds speed in consistent gradient directions and dampens oscillations in perpendicular directions (the ravine walls cancel each other out).
+
+Benefits: faster convergence in ravines, smooths out noisy gradient estimates, can escape small local minima by building up enough velocity. Downside: can overshoot the minimum.`
+  },
+  nag:{
+    title:'NAG — Nesterov Accelerated Gradient', badge:'look-ahead',
+    formula:`v_t ← β · v_{t-1} + η · ∇L(w - β · v_{t-1})
+w ← w - v_t`,
+    body:`"Look-ahead" momentum. Compute the gradient at the PROJECTED position (w - β·v) — where momentum is about to take us — rather than the current position.
+
+Intuition: standard momentum blindly applies the velocity then corrects. NAG first takes the momentum step, THEN computes the gradient. It's like a smarter version that looks before it leaps, reducing overshoot.
+
+Subtle but consistent improvement over plain momentum, especially when close to a minimum.`
+  },
+  adagrad:{
+    title:'Adagrad — Adaptive Gradient', badge:'adaptive LR',
+    formula:`G_t ← G_{t-1} + (∇L)²          ← sum of squared gradients
+w ← w - (η / √(G_t + ε)) · ∇L`,
+    body:`Maintains a running sum of squared gradients per parameter. Divides the learning rate by this sum — parameters that received large gradients get a smaller effective LR.
+
+Great for sparse features: infrequent features (rare words) have small G_t → larger effective LR → they learn faster when they do appear.
+
+Fatal flaw: G_t only accumulates, never shrinks. Eventually the effective LR decays to zero — learning stops entirely, even on non-converged parameters. RMSProp solves this.`
+  },
+  rmsprop:{
+    title:'RMSProp', badge:'EMA fix',
+    formula:`v_t ← β · v_{t-1} + (1-β) · (∇L)²   ← exponential moving average
+w ← w - (η / √(v_t + ε)) · ∇L`,
+    body:`Fixes Adagrad's dying learning rate problem by replacing the sum of squared gradients with an exponential moving average. Old gradients decay away — the denominator stays bounded rather than growing forever.
+
+β ≈ 0.9, ε ≈ 1e-8. Since old gradients fade, the effective LR adapts to recent gradient magnitudes rather than the full history.
+
+Excellent for RNNs and non-stationary optimization landscapes. Proposed by Hinton in a Coursera lecture — never formally published. The immediate predecessor to Adam.`
+  },
+  adam:{
+    title:'Adam — Adaptive Moment Estimation', badge:'gold standard',
+    formula:`m_t ← β₁ · m_{t-1} + (1-β₁) · ∇L         ← 1st moment (momentum)
+v_t ← β₂ · v_{t-1} + (1-β₂) · (∇L)²     ← 2nd moment (RMSProp)
+m̂_t = m_t / (1 - β₁ᵗ)                    ← bias correction
+v̂_t = v_t / (1 - β₂ᵗ)                    ← bias correction
+w ← w - η · m̂_t / (√v̂_t + ε)`,
+    body:`Combines Momentum (1st moment) + RMSProp (2nd moment) + bias correction.
+
+Bias correction explained: m and v are initialized to 0. At t=1, m₁ = (1-β₁)·∇L — it severely underestimates the true gradient because (1-0.9)=0.1 dampens it. Dividing by (1-β₁ᵗ) = (1-0.9¹) = 0.1 corrects this. For large t, β₁ᵗ ≈ 0 so the correction factor → 1 and vanishes.
+
+Defaults: β₁=0.9, β₂=0.999, ε=1e-8, η=1e-3. Best default optimizer for most tasks. May generalize slightly worse than SGD+momentum on image classification benchmarks.`
+  }
+};
+
+function showOptim(key, btn) {
+  if(btn) { document.querySelectorAll('#optim-tabs .tab').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); }
+  const d = OPTIMS[key];
+  document.getElementById('optim-body').innerHTML = `
+    <div class="card">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+        <span style="font-size:15px;font-weight:500;font-family:var(--display);color:var(--text)">${d.title}</span>
+        <span class="badge badge-purple">${d.badge}</span>
+      </div>
+      <div class="code">${d.formula}</div>
+      <p style="white-space:pre-line;margin-top:10px;font-size:13.5px;line-height:1.75">${d.body}</p>
+    </div>`;
+}
+showOptim('sgd');
+
+// ── LOSS FUNCTION DETAILS ──
+const LOSSES = {
+  mse:{title:'MSE — Mean Squared Error',badge:'regression',
+    formula:`L = (1/n) Σᵢ (yᵢ - ŷᵢ)²
+∂L/∂ŷ = 2(ŷ - y) / n`,
+    body:`Penalizes errors quadratically — large errors are punished far more than small ones. Smooth and differentiable everywhere, making gradient-based optimization straightforward.
+
+Sensitive to outliers: a single prediction that's 10× off contributes 100× as much loss as one that's 1× off. In a dataset with noisy labels or outliers, MSE will dedicate significant capacity to fitting them.
+
+Use when: all errors should be penalized smoothly and proportional to their magnitude, and you're confident in your data quality.`},
+  mae:{title:'MAE — Mean Absolute Error',badge:'regression',
+    formula:`L = (1/n) Σᵢ |yᵢ - ŷᵢ|
+∂L/∂ŷ = sign(ŷ - y) / n`,
+    body:`Penalizes errors linearly — robust to outliers since a 10× error only contributes 10× loss (not 100×). The gradient magnitude is constant (±1/n) regardless of error size.
+
+Downside: gradient is constant near the minimum — the optimizer oscillates rather than converging smoothly. Not differentiable at 0 (need subgradient). Convergence is slower and less stable than MSE near the optimum.
+
+Use when: your dataset has outliers or noise you don't want to overfit.`},
+  huber:{title:'Huber Loss',badge:'regression',
+    formula:`L = 0.5(y-ŷ)²           if |y-ŷ| ≤ δ
+L = δ(|y-ŷ| - 0.5δ)   if |y-ŷ| > δ
+
+∂L/∂ŷ = (ŷ-y)                   if |error| ≤ δ
+∂L/∂ŷ = δ · sign(ŷ-y)           otherwise`,
+    body:`Best of both worlds: behaves like MSE for small errors (smooth, fast convergence near minimum) and like MAE for large errors (outlier-robust, capped gradient).
+
+δ is a hyperparameter controlling the transition point. Below δ: quadratic zone. Above δ: linear zone. Default δ=1. Differentiable everywhere, including at ±δ.
+
+Used in: robust regression, Deep Q-Networks (DQN uses Huber to prevent exploding gradients from rare large TD errors).`},
+  bce:{title:'Binary Cross-Entropy',badge:'classification',
+    formula:`L = -(1/n) Σ [y·log(p) + (1-y)·log(1-p)]
+
+With sigmoid output:
+∂L/∂z = p - y   ← clean simplification!`,
+    body:`The natural loss for binary classification (y ∈ {0,1}, predicted probability p ∈ (0,1)).
+
+Log penalty: if the true label is 1 but you predict p=0.001, the loss is -log(0.001) ≈ 6.9 — very large. Correct confident predictions contribute ≈ 0 loss. This encourages the model to be calibrated and confident on easy examples.
+
+Always clip p to (ε, 1-ε) to prevent log(0). With a sigmoid activation, the combined sigmoid+BCE gradient simplifies beautifully to just (p - y).`},
+  ce:{title:'Categorical Cross-Entropy',badge:'classification',
+    formula:`L = -Σ_c y_c · log(p_c)    (y is one-hot)
+
+Combined softmax + CE gradient:
+∂L/∂z_i = p_i - y_i         ← elegant!
+
+Numerically stable log-softmax:
+log(softmax(z)) = z - logsumexp(z)`,
+    body:`Generalization of BCE to K classes. Only the term for the true class is non-zero (since y is one-hot), so it simplifies to -log(p_true_class) — maximize the probability of the correct class.
+
+The combined Softmax + Cross-Entropy gradient is simply (predictions - one-hot labels) — one of the cleanest results in deep learning, making implementation trivial.
+
+Numerical stability: never compute softmax then log(softmax). Use log-softmax directly to avoid overflow when logits are large (exp explodes), then underflow when you take log.`},
+  hinge:{title:'Hinge Loss (SVM)',badge:'SVM / margin',
+    formula:`L = (1/n) Σᵢ max(0, 1 - yᵢ · sᵢ)   y ∈ {-1, +1}
+∂L/∂s = -y if y·s < 1, else 0
+
+Multi-class (Weston-Watkins):
+Σ_{c≠y} max(0, s_c - s_y + Δ)`,
+    body:`Creates a margin: correct predictions need score ≥ 1 (not just > 0). Samples that are correctly classified with score > 1 contribute zero loss — they're "safe." Samples inside the margin (0 < y·s < 1) still contribute.
+
+The gradient is zero for well-classified samples far from the margin — sparse updates that focus computation on the hard cases. This is the SVM's core idea.
+
+Multi-class Hinge (Δ=1): the correct class score must exceed every wrong class score by at least Δ. Sparse gradients: only violated classes contribute.`},
+  kl:{title:'KL Divergence',badge:'distributions',
+    formula:`KL(P‖Q) = Σ_x P(x) · log(P(x)/Q(x))
+
+Asymmetric: KL(P‖Q) ≠ KL(Q‖P)
+
+Relation to cross-entropy:
+CE(P, Q) = H(P) + KL(P‖Q)
+→ Minimizing CE = minimizing KL when P is fixed`,
+    body:`Measures how distribution Q differs from reference distribution P. Not a true metric (asymmetric, no triangle inequality).
+
+Forward KL (P‖Q): Q must cover all modes of P — if P(x)>0 anywhere and Q(x)=0, KL=∞. Forces Q to be broad, "mean-seeking."
+
+Reverse KL (Q‖P): Q can ignore modes of P. Allows Q to be concentrated on one mode, "mode-seeking." Used in variational inference and RLHF PPO.
+
+Applications: VAEs (minimize ELBO = reconstuction + KL), knowledge distillation (student learns from teacher's soft distribution), RL policy optimization.`}
+};
+
+function showLoss(key, btn) {
+  if(btn) { document.querySelectorAll('#loss-tabs .tab').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); }
+  const d = LOSSES[key];
+  document.getElementById('loss-body').innerHTML = `
+    <div class="card" style="margin-bottom:0">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+        <span style="font-size:15px;font-weight:500;font-family:var(--display);color:var(--text)">${d.title}</span>
+        <span class="badge badge-purple">${d.badge}</span>
+      </div>
+      <div class="code">${d.formula}</div>
+      <p style="white-space:pre-line;margin-top:10px;font-size:13.5px;line-height:1.75">${d.body}</p>
+    </div>`;
+}
+showLoss('mse');
+
+// ── LOSS CANVAS ──
+let lossChart = null;
+function updateLossViz(e) {
+  e = parseFloat(e);
+  document.getElementById('errVal').textContent = e.toFixed(1);
+  document.getElementById('mseV').textContent = (e*e).toFixed(3);
+  document.getElementById('maeV').textContent = Math.abs(e).toFixed(3);
+  const ae=Math.abs(e), hub=ae<=1?0.5*e*e:1*(ae-0.5);
+  document.getElementById('hubV').textContent = hub.toFixed(3);
+  drawLossChart();
+}
+function drawLossChart() {
+  const xs = Array.from({length:200},(_,i)=>-5+i*0.05);
+  const ctx = document.getElementById('lossCanvas').getContext('2d');
+  if(lossChart) lossChart.destroy();
+  lossChart = new Chart(ctx,{type:'line',data:{labels:xs.map(x=>x.toFixed(2)),datasets:[
+    {label:'MSE',data:xs.map(x=>x*x),borderColor:'#7c6aff',borderWidth:2,pointRadius:0,fill:false,tension:.1},
+    {label:'MAE',data:xs.map(x=>Math.abs(x)),borderColor:'#34d399',borderWidth:2,pointRadius:0,fill:false,tension:.1},
+    {label:'Huber(δ=1)',data:xs.map(x=>Math.abs(x)<=1?0.5*x*x:Math.abs(x)-0.5),borderColor:'#fbbf24',borderWidth:2,pointRadius:0,fill:false,tension:.1}
+  ]},options:{responsive:true,animation:false,plugins:{legend:{labels:{color:'#7a7a95',font:{size:12}}}},scales:{x:{ticks:{maxTicksLimit:11,color:'#3a3a50',font:{size:11}},grid:{color:'rgba(255,255,255,0.04)'}},y:{max:16,ticks:{color:'#3a3a50',font:{size:11}},grid:{color:'rgba(255,255,255,0.04)'}}}}}});
+}
+drawLossChart();
+
+// ── ALPHA CHART ──
+function drawAlpha() {
+  const canvas = document.getElementById('alphaCanvas');
+  if (!canvas) return;
+  const W = canvas.offsetWidth || 600, H = 200;
+  canvas.width = W * devicePixelRatio; canvas.height = H * devicePixelRatio;
+  canvas.style.width = W+'px'; canvas.style.height = H+'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(devicePixelRatio, devicePixelRatio);
+  ctx.clearRect(0,0,W,H);
+  const PAD = {l:44,r:16,t:16,b:32};
+  const cW = W-PAD.l-PAD.r, cH = H-PAD.t-PAD.b;
+  const toX = e => PAD.l + (e-0.01)/0.98*cW;
+  const toY = a => PAD.t + (1-(a+4)/8)*cH;
+  // grid
+  ctx.strokeStyle='rgba(255,255,255,0.05)'; ctx.lineWidth=.5;
+  [-4,-2,0,2,4].forEach(a=>{ ctx.beginPath();ctx.moveTo(PAD.l,toY(a));ctx.lineTo(PAD.l+cW,toY(a));ctx.stroke(); });
+  // zero line
+  ctx.strokeStyle='rgba(251,191,36,0.3)'; ctx.lineWidth=1; ctx.setLineDash([4,4]);
+  ctx.beginPath();ctx.moveTo(PAD.l,toY(0));ctx.lineTo(PAD.l+cW,toY(0));ctx.stroke();
+  ctx.setLineDash([]);
+  // ε=0.5 line
+  ctx.beginPath();ctx.moveTo(toX(0.5),PAD.t);ctx.lineTo(toX(0.5),PAD.t+cH);ctx.stroke();
+  // alpha curve
+  ctx.beginPath(); ctx.strokeStyle='#7c6aff'; ctx.lineWidth=2.5;
+  for(let i=0;i<=200;i++){
+    const eps=0.01+i/200*0.98;
+    const alpha=Math.max(-4,Math.min(4, 0.5*Math.log((1-eps)/eps)));
+    i===0?ctx.moveTo(toX(eps),toY(alpha)):ctx.lineTo(toX(eps),toY(alpha));
+  }
+  ctx.stroke();
+  // labels
+  ctx.fillStyle='#3a3a50'; ctx.font='11px DM Mono, monospace'; ctx.textAlign='center';
+  ctx.fillText('ε=0.01',toX(0.01),H-6);
+  ctx.fillText('ε=0.5',toX(0.5),H-6);
+  ctx.fillText('ε=0.99',toX(0.99),H-6);
+  ctx.textAlign='right';
+  [-4,-2,0,2,4].forEach(a=>{ ctx.fillText(a,PAD.l-6,toY(a)+4); });
+  ctx.fillStyle='#7a7a95'; ctx.font='12px DM Mono, monospace'; ctx.textAlign='left';
+  ctx.fillText('α', PAD.l+4, PAD.t+14);
+}
+</script>
+</body>
+</html>
