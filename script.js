@@ -6,21 +6,24 @@ const navLinks = document.getElementById('nav-links');
 
 links.forEach(link => {
   link.addEventListener('click', e => {
-    e.preventDefault();
+
     const target = link.getAttribute('data-section');
 
-    links.forEach(l => l.classList.remove('active'));
-    link.classList.add('active');
+    // 👉 Only intercept if it's a section link
+    if (target) {
+      e.preventDefault();
 
-    sections.forEach(section => {
-      section.classList.remove('visible');
-      if (section.id === target) section.classList.add('visible');
-    });
+      links.forEach(l => l.classList.remove('active'));
+      link.classList.add('active');
 
-    navLinks.classList.remove('show'); // Close on mobile
+      sections.forEach(section => {
+        section.classList.remove('visible');
+        if (section.id === target) section.classList.add('visible');
+      });
+
+      navLinks.classList.remove('show');
+    }
+
+    // 👉 If NO data-section → allow normal navigation (ml_app.html works)
   });
-});
-
-hamburger.addEventListener('click', () => {
-  navLinks.classList.toggle('show');
 });
